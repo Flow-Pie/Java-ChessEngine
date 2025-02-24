@@ -1,9 +1,9 @@
 package com.piece;
 
-import java.awt.image.BufferedImage;
-
 import com.main.Board;
+import com.main.GamePanel;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
@@ -14,6 +14,7 @@ public class Piece {
     public int x,y;
     public int col, row, preCol, preRow;
     public int color;
+    public Piece hittingPiece;
 
     public Piece(int color, int col, int row){
         this.color = color;
@@ -49,6 +50,80 @@ public class Piece {
 
     public int getY(int row){
         return  row*Board.SQUARE_SIZE;
+    }
+
+    public int getCol(int x){
+        //program should detect piece col based on center point on the board
+        return ((x + Board.HALF_SQUARE_SIZE) / Board.SQUARE_SIZE);
+    }
+
+    public int getRow(int y){
+        return ((y+ Board.HALF_SQUARE_SIZE) / Board.SQUARE_SIZE);
+    }
+
+    public int getIndex(){
+        for(int index=0; index<GamePanel.simPieces.size(); index++){
+            if(GamePanel.simPieces.get(index) == this){
+                return index;
+            }
+        }
+        return 0;
+    }
+
+    public void updatePosition(){
+        //place piece at the center
+        x =getX(col);
+        y =getY(row);
+
+        preCol = getCol(x);
+        preRow = getRow(y);
+    }
+
+    public void resetPosition(){
+        col = preCol;
+        row = preRow;
+
+        x = getX(col);
+        y= getY(row);       
+
+    }
+
+
+    //to be overwritten/ overrriden by each piece type
+    public boolean canMove(int targetCol, int targetRow){
+        return false;
+    }
+
+    public boolean isWithinBounds(int targetCol, int targetRow){
+        if(targetCol>=0 && targetCol<=7 && targetRow >=0 && targetRow <=7){
+            return true;
+        }
+        return false;
+    }
+
+    public Piece getHittingPiece(int targetCol,int targetRow ){
+        for(Piece piece : GamePanel.simPieces){
+            if(piece.col == targetCol && piece.row == targetRow && piece !=this){/*this represent active piece */
+                return piece;
+            }
+        }
+        return null;
+    }
+
+    public boolean isValidSquare(int targetCol, int targetRow){
+        hittingPiece = getHittingPiece(targetCol, targetRow);
+        if(hittingPiece == null){
+            //square vacant
+            return true;
+        }else {
+            if(hittingPiece.color != this.color){
+                //piece can be captured
+                return true;
+            }else{
+                hittingPiece = null;
+            }
+        }
+        return false;
     }
 
     public void drawPiece(Graphics2D graphic2d){

@@ -13,4 +13,19 @@ public class King extends Piece{
         }
     }
 
+    public boolean canMove(int targetCol, int targetRow){
+        if(isWithinBounds(targetCol, targetRow)){
+            //handle L, R, T,B movements
+            if(Math.abs(targetCol - preCol) + Math.abs(targetRow - preRow) == 1 || 
+            /*handle diagonal movements */
+                (Math.abs(targetCol -preCol) * Math.abs(targetCol - preCol) == 1)
+            ){
+                if(isValidSquare(targetCol, targetRow)){                    
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

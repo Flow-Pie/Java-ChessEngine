@@ -10,19 +10,19 @@ public class Board {
     public static final int SQUARE_SIZE =75;
     public static final int HALF_SQUARE_SIZE = SQUARE_SIZE/2;
 
-    public void draw2DBoard(Graphics2D graphics2D){
+    public void draw2DBoard(Graphics2D g2d){
         int colorCol =0;
         for (int row=0; row<MAX_ROW; row++){
             for(int col=0; col<MAX_COL; col++){
                 if(colorCol ==0){
-                    graphics2D.setColor(new Color(210,165,125));
+                    g2d.setColor(new Color(210,165,125));
                     colorCol =1;
                 }else{
-                    graphics2D.setColor(new Color(175,115,70));
+                    g2d.setColor(new Color(175,115,70));
                     colorCol=0;
                 }
 
-                graphics2D.fillRect(col*SQUARE_SIZE, row*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+                g2d.fillRect(col*SQUARE_SIZE, row*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
             }
 
             //change color for next row
