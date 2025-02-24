@@ -18,7 +18,7 @@ public class Rook extends Piece{
         if(isWithinBounds(targetCol, targetRow) && isSameSquare(targetCol, targetRow) ==false){
             //moves row wise or column wise
             if(targetCol==preCol || targetRow==preRow){
-                if(isValidSquare(targetCol,targetRow) && isPathBlocked(targetCol, targetRow) ==false){
+                if(isValidSquare(targetCol,targetRow) && isStraightPathBlocked(targetCol, targetRow) ==false){
                     return true;
                 }
             }

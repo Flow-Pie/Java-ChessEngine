@@ -133,7 +133,7 @@ public class Piece {
         return false;
     }
 
-    public boolean isPathBlocked(int targetCol, int targetRow) {
+    public boolean isStraightPathBlocked(int targetCol, int targetRow) {
         //(left or right)
         if (targetRow == preRow) {
             int step = (targetCol > preCol) ? 1 : -1; 
@@ -154,6 +154,57 @@ public class Piece {
         }
         return false;
     }
+
+    public boolean isDiagonalLineBlocked(int targetCol, int targetRow){
+        if(targetRow < preRow){
+            //upleft
+            for(int c= preCol-1; c>targetCol; c--){
+                int diff = Math.abs(c-preCol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col ==c && piece.row ==preRow -diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+            //upright
+            for(int c= preCol+1; c<targetCol; c++){
+                int diff = Math.abs(c-preCol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col ==c && piece.row ==preRow -diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+        }
+        if(targetRow > preRow){
+            //Down left 
+            for(int c= preCol-1; c>targetCol; c--){
+                int diff = Math.abs(c-preCol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col ==c && piece.row ==preRow + diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+            //Down right
+            for(int c= preCol+1; c<targetCol; c++){
+                int diff = Math.abs(c-preCol);
+                for(Piece piece : GamePanel.simPieces){
+                    if(piece.col ==c && piece.row ==preRow + diff){
+                        hittingPiece = piece;
+                        return true;
+                    }
+                }
+            }
+        
+        }
+
+        return false;
+    }
+
     
     /**
      * Checks if a specific square is occupied by any piece.
