@@ -12,6 +12,17 @@ public class Knight extends Piece {
             image = getImage("/piece/b-knight");
         }
     }
-    
+
+    public boolean canMove(int targetCol, int targetRow){
+        if(isWithinBounds(targetCol, targetRow)){
+            //col :row = 1:2 or 2:1 product of those ratios will always equal 1
+            if(Math.abs(targetCol - preCol) * Math.abs(targetRow - preRow) ==2){
+                if(isValidSquare(targetCol, targetRow)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }
