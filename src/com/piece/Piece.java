@@ -69,6 +69,15 @@ public class Piece {
         }
         return 0;
     }
+    public Piece getHittingPiece(int targetCol,int targetRow ){
+        for(Piece piece : GamePanel.simPieces){
+            if(piece.col == targetCol && piece.row == targetRow && piece !=this){/*this represent active piece */
+                return piece;
+            }
+        }
+        return null;
+    }
+
 
     public void updatePosition(){
         //place piece at the center
@@ -100,16 +109,7 @@ public class Piece {
         }
         return false;
     }
-
-    public Piece getHittingPiece(int targetCol,int targetRow ){
-        for(Piece piece : GamePanel.simPieces){
-            if(piece.col == targetCol && piece.row == targetRow && piece !=this){/*this represent active piece */
-                return piece;
-            }
-        }
-        return null;
-    }
-
+    
     public boolean isValidSquare(int targetCol, int targetRow){
         hittingPiece = getHittingPiece(targetCol, targetRow);
         if(hittingPiece == null){
@@ -125,7 +125,48 @@ public class Piece {
         }
         return false;
     }
+    
+    public boolean isSameSquare(int targetCol, int targetRow){
+        if(targetCol==preCol && targetRow ==preRow){
+            return true;
+        }
+        return false;
+    }
 
+    public boolean isPathBlocked(int targetCol, int targetRow) {
+        //(left or right)
+        if (targetRow == preRow) {
+            int step = (targetCol > preCol) ? 1 : -1; 
+            for (int c = preCol + step; c != targetCol; c += step) {
+                if (isSquareOccupied(c, targetRow)) {
+                    return true;
+                }
+            }
+        }
+        // Moving(up or down)
+        else if (targetCol == preCol) {
+            int step = (targetRow > preRow) ? 1 : -1; // Determine direction
+            for (int r = preRow + step; r != targetRow; r += step) {
+                if (isSquareOccupied(targetCol, r)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Checks if a specific square is occupied by any piece.
+     */
+    private boolean isSquareOccupied(int col, int row) {
+        for (Piece piece : GamePanel.simPieces) {
+            if (piece.col == col && piece.row == row) {
+                hittingPiece = piece; // Set the hitting piece
+                return true;
+            }
+        }
+        return false;
+    }
     public void drawPiece(Graphics2D graphic2d){
         graphic2d.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
     }

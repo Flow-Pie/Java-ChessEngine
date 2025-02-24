@@ -13,6 +13,19 @@ public class Rook extends Piece{
         }
     }
 
+    @Override
+    public boolean canMove(int targetCol, int targetRow){        
+        if(isWithinBounds(targetCol, targetRow) && isSameSquare(targetCol, targetRow) ==false){
+            //moves row wise or column wise
+            if(targetCol==preCol || targetRow==preRow){
+                if(isValidSquare(targetCol,targetRow) && isPathBlocked(targetCol, targetRow) ==false){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
 
 }
