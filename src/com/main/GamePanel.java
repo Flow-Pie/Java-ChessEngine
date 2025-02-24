@@ -4,8 +4,10 @@ import com.piece.*;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
@@ -152,6 +154,8 @@ public class GamePanel extends JPanel implements Runnable{
                     activePiece.updatePosition();
                     //System.out.println("Dropped at: " + activePiece.col + ", " + activePiece.row);
 
+                    changePlayer();
+
                 }else{    
                     //Reset everything
                     copyPieces(pieces, simPieces);
@@ -188,6 +192,15 @@ public class GamePanel extends JPanel implements Runnable{
         }
         
     }
+
+    private void changePlayer(){
+        if(currentColor == WHITE){
+            currentColor =BLACK;
+        }else{
+            currentColor =WHITE;
+        }
+        activePiece = null;
+    }
     
     //will handle all the drawing
     public void paintComponent(Graphics graphics){
@@ -213,6 +226,17 @@ public class GamePanel extends JPanel implements Runnable{
         
             // Draw the active piece
             activePiece.drawPiece(g2d);
+        }
+
+        //Status message
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
+        g2d.setColor(Color.white);
+
+        if(currentColor == WHITE){
+            g2d.drawString("White's Turn", 640, 550);            
+        }else{
+            g2d.drawString("Black's Turn", 640, 50);
         }
     }
 
