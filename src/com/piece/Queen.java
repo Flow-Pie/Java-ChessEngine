@@ -12,4 +12,24 @@ public class Queen extends Piece{
         }
     }
 
+    public boolean canMove(int targetCol, int targetRow){
+        if(isWithinBounds(targetCol, targetRow) && isSameSquare(targetCol, targetRow) == false){
+            //vertical and horizontal
+            if(targetCol == preCol  || targetRow == preRow){
+                if(isValidSquare(targetCol, targetRow) && !isStraightPathBlocked(targetCol, targetRow)){
+                    return true;
+                }
+            }
+
+            //diagonal 
+            if(Math.abs(targetCol -preCol) ==Math.abs(targetRow-preRow)){
+                if(isValidSquare(targetCol, targetRow) && !isDiagonalLineBlocked(targetCol, targetRow)){
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
 }
