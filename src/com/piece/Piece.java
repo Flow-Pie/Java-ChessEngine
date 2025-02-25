@@ -2,6 +2,8 @@ package com.piece;
 
 import com.main.Board;
 import com.main.GamePanel;
+import com.main.Type;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -10,12 +12,13 @@ import javax.imageio.ImageIO;
 
 
 public class Piece {
+    public Type type;
     public BufferedImage image;
     public int x,y;
     public int col, row, preCol, preRow;
     public int color;
     public Piece hittingPiece;
-    public boolean moved;
+    public boolean moved, isTwoStepped;
 
     public Piece(int color, int col, int row){
         this.color = color;
@@ -28,21 +31,18 @@ public class Piece {
     }
 
     public BufferedImage getImage(String imagePath) {
-        BufferedImage image = null;
-        System.out.println("Attempting to load image: " + imagePath + ".png");
-    
         try {
             // Load the image from the classpath
-            image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png"));
+            BufferedImage image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png"));
             if (image == null) {
-                System.out.println("Image not found: " + imagePath + ".png");
+                throw new IOException("Image not found: " + imagePath + ".png");
             }
+            return image;
         } catch (IOException e) {
-            System.out.println("Error while reading image: " + imagePath + ".png");
+            System.err.println("Error loading image: " + imagePath + ".png");
             e.printStackTrace();
+            return null;
         }
-    
-        return image;
     }
 
     public int getX(int col){
@@ -80,13 +80,19 @@ public class Piece {
     }
 
 
-    public void updatePosition(){
-        //place piece at the center
-        x =getX(col);
-        y =getY(row);
+    public void updatePosition() {
+        // Update the previous position before moving
+        preCol = col;
+        preRow = row;
 
-        preCol = getCol(x);
-        preRow = getRow(y);
+        x = getX(col);
+        y = getY(row);
+
+        if (type == Type.PAWN) {
+            if (Math.abs(row - preRow) == 2) {
+                isTwoStepped = true; // Set the flag if the pawn moves two squares forward
+            }
+        }
 
         moved = true;
     }
@@ -128,96 +134,54 @@ public class Piece {
         }
         return false;
     }
-    
+
     public boolean isSameSquare(int targetCol, int targetRow){
         if(targetCol==preCol && targetRow ==preRow){
             return true;
         }
         return false;
     }
-
-    public boolean isStraightPathBlocked(int targetCol, int targetRow) {
-        //(left or right)
-        if (targetRow == preRow) {
-            int step = (targetCol > preCol) ? 1 : -1; 
-            for (int c = preCol + step; c != targetCol; c += step) {
-                if (isSquareOccupied(c, targetRow)) {
-                    return true;
-                }
-            }
-        }
-        // Moving(up or down)
-        else if (targetCol == preCol) {
-            int step = (targetRow > preRow) ? 1 : -1; // Determine direction
-            for (int r = preRow + step; r != targetRow; r += step) {
-                if (isSquareOccupied(targetCol, r)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean isDiagonalLineBlocked(int targetCol, int targetRow){
-        if(targetRow < preRow){
-            //upleft
-            for(int c= preCol-1; c>targetCol; c--){
-                int diff = Math.abs(c-preCol);
-                for(Piece piece : GamePanel.simPieces){
-                    if(piece.col ==c && piece.row ==preRow -diff){
-                        hittingPiece = piece;
-                        return true;
-                    }
-                }
-            }
-            //upright
-            for(int c= preCol+1; c<targetCol; c++){
-                int diff = Math.abs(c-preCol);
-                for(Piece piece : GamePanel.simPieces){
-                    if(piece.col ==c && piece.row ==preRow -diff){
-                        hittingPiece = piece;
-                        return true;
-                    }
-                }
-            }
-        }
-        if(targetRow > preRow){
-            //Down left 
-            for(int c= preCol-1; c>targetCol; c--){
-                int diff = Math.abs(c-preCol);
-                for(Piece piece : GamePanel.simPieces){
-                    if(piece.col ==c && piece.row ==preRow + diff){
-                        hittingPiece = piece;
-                        return true;
-                    }
-                }
-            }
-            //Down right
-            for(int c= preCol+1; c<targetCol; c++){
-                int diff = Math.abs(c-preCol);
-                for(Piece piece : GamePanel.simPieces){
-                    if(piece.col ==c && piece.row ==preRow + diff){
-                        hittingPiece = piece;
-                        return true;
-                    }
-                }
-            }
-        
-        }
-
-        return false;
-    }
-
-    
-    /**
-     * Checks if a specific square is occupied by any piece.
-     */
     private boolean isSquareOccupied(int col, int row) {
         for (Piece piece : GamePanel.simPieces) {
             if (piece.col == col && piece.row == row) {
-                hittingPiece = piece; // Set the hitting piece
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean isDiagonalLineBlocked(int targetCol, int targetRow) {
+        int colStep = (targetCol > preCol) ? 1 : -1; // Direction of column movement
+        int rowStep = (targetRow > preRow) ? 1 : -1; // Direction of row movement
+
+        int c = preCol + colStep;
+        int r = preRow + rowStep;
+
+        while (c != targetCol && r != targetRow) {
+            if (isSquareOccupied(c, r)) {
+                return true;
+            }
+            c += colStep;
+            r += rowStep;
+        }
+        return false;
+    }
+
+
+
+    public boolean isStraightPathBlocked(int targetCol, int targetRow) {
+        int colStep = (targetCol != preCol) ? (targetCol > preCol ? 1 : -1) : 0;
+        int rowStep = (targetRow != preRow) ? (targetRow > preRow ? 1 : -1) : 0;
+
+        int c = preCol + colStep;
+        int r = preRow + rowStep;
+
+        while (c != targetCol || r != targetRow) {
+            if (isSquareOccupied(c, r)) {
+                return true;
+            }
+            c += colStep;
+            r += rowStep;
         }
         return false;
     }
