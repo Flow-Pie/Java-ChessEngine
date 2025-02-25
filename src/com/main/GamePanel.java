@@ -11,135 +11,149 @@ import java.awt.RenderingHints;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
-public class GamePanel extends JPanel implements Runnable {
+
+public class GamePanel extends JPanel implements Runnable{
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
-    final int FPS = 60;
+    final int FPS =60;
     Thread gameThread;
     Board board = new Board();
     Mouse mouse = new Mouse();
 
-    // PIECES
-    public static ArrayList<Piece> pieces = new ArrayList<>(); // Backup list
+    //PIECES
+    public static ArrayList<Piece> pieces = new ArrayList<>();//backup list
     public static ArrayList<Piece> simPieces = new ArrayList<>();
     Piece activePiece;
     public static Piece castlingPiece;
 
-    // COLOR
+    //COLOR
     public static final int WHITE = 0;
     public static final int BLACK = 1;
     int currentColor = WHITE;
 
-    // Booleans
+    //Booleans
     boolean canMove;
     boolean isValidSquare;
 
-    public GamePanel() {
+    public GamePanel(){
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.black);
         addMouseMotionListener(mouse);
         addMouseListener(mouse);
 
         SetPieces();
-        copyPieces(pieces, simPieces);
+        copyPieces(pieces , simPieces);
     }
 
-    public void launchGameThread() {
+    public void launchGameThread(){
         gameThread = new Thread(this);
-        gameThread.start(); // Starting a thread calls a run method
+        gameThread.start(); //starting a thread calls a run method
     }
 
-    public void SetPieces() {
-        // White pieces
-        pieces.add(new Pawn(WHITE, 0, 6));
-        pieces.add(new Pawn(WHITE, 1, 6));
-        pieces.add(new Pawn(WHITE, 2, 6));
-        pieces.add(new Pawn(WHITE, 3, 6));
-        pieces.add(new Pawn(WHITE, 4, 6));
-        pieces.add(new Pawn(WHITE, 5, 6));
-        pieces.add(new Pawn(WHITE, 6, 6));
-        pieces.add(new Pawn(WHITE, 7, 6));
-        pieces.add(new Rook(WHITE, 0, 7));
-        pieces.add(new Rook(WHITE, 7, 7));
-        pieces.add(new King(WHITE, 4, 7));
+    public void SetPieces(){
+        //White pieces
+        pieces.add(new Pawn(WHITE,0,6));
+        pieces.add(new Pawn(WHITE,1,6));
+        pieces.add(new Pawn(WHITE,2,6));
+        pieces.add(new Pawn(WHITE,3,6));
+        pieces.add(new Pawn(WHITE,4,6));
+        pieces.add(new Pawn(WHITE,5,6));
+        pieces.add(new Pawn(WHITE,6,6));
+        pieces.add(new Pawn(WHITE,7,6));
+        pieces.add(new Rook(WHITE,0,7));
+       // pieces.add(new Rook(WHITE,0,4));
+        pieces.add(new Rook(WHITE,7,7));
+//        pieces.add(new Knight(WHITE,1,7));
+//        pieces.add(new Knight(WHITE,6,7));
+        // pieces.add(new Bishop(WHITE,2,7));
+//        pieces.add(new Bishop(WHITE,5,4));
+//        pieces.add(new Bishop(WHITE,5,7));
+        // pieces.add(new Queen(WHITE,3,7));
+//        pieces.add(new Queen(WHITE,3,5));
 
-        // Black pieces
-        pieces.add(new Pawn(BLACK, 0, 1));
-        pieces.add(new Pawn(BLACK, 1, 1));
-        pieces.add(new Pawn(BLACK, 2, 1));
-        pieces.add(new Pawn(BLACK, 3, 1));
-        pieces.add(new Pawn(BLACK, 4, 1));
-        pieces.add(new Pawn(BLACK, 5, 1));
-        pieces.add(new Pawn(BLACK, 6, 1));
-        pieces.add(new Pawn(BLACK, 7, 1));
-        pieces.add(new Rook(BLACK, 0, 0));
-        pieces.add(new Rook(BLACK, 7, 0));
-        pieces.add(new Knight(BLACK, 1, 0));
-        pieces.add(new Knight(BLACK, 6, 0));
-        pieces.add(new Bishop(BLACK, 2, 0));
-        pieces.add(new Bishop(BLACK, 5, 0));
-        pieces.add(new Queen(BLACK, 3, 0));
-        pieces.add(new King(BLACK, 4, 0));
+        pieces.add(new King(WHITE,4,7));
+//        pieces.add(new King(WHITE,4,4));
+
+
+        //Black pieces
+        pieces.add(new Pawn(BLACK,0,1));
+        pieces.add(new Pawn(BLACK,1,1));
+        pieces.add(new Pawn(BLACK,2,1));
+        pieces.add(new Pawn(BLACK,3,1));
+        pieces.add(new Pawn(BLACK,4,1));
+        pieces.add(new Pawn(BLACK,5,1));
+        pieces.add(new Pawn(BLACK,6,1));
+        pieces.add(new Pawn(BLACK,7,1));
+        pieces.add(new Rook(BLACK,0,0));
+        pieces.add(new Rook(BLACK,7,0));
+        pieces.add(new Knight(BLACK,1,0));
+        pieces.add(new Knight(BLACK,6,0));
+        pieces.add(new Bishop(BLACK,2,0));
+        pieces.add(new Bishop(BLACK,5,0));
+        pieces.add(new Queen(BLACK,3,0));
+        pieces.add(new King(BLACK,4,0));
     }
 
-    private void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target) {
+    private void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target){
         target.clear();
-        for (int i = 0; i < source.size(); i++) {
+        for(int i=0; i<source.size(); i++){
             target.add(source.get(i));
         }
+
     }
 
+
     @Override
-    public void run() {
-        // GAME LOOP
-        double drawInterval = 1000000000 / FPS;
+    public void run(){
+        //GAME LOOP
+        double drawInterval = 1000000000/FPS;
         double delta = 0;
         long lastTime = System.nanoTime();
         long currentTime;
 
-        while (gameThread != null) {
+        while(gameThread != null){
             currentTime = System.nanoTime();
-            delta += (currentTime - lastTime) / drawInterval;
-            lastTime = currentTime;
-
-            if (delta >= 1) {
+            delta +=(currentTime - lastTime)/drawInterval;
+            lastTime = currentTime; 
+            
+            if(delta >=1 ){
                 updateGame();
                 repaint();
-                delta--;
+                delta --;
             }
+
         }
     }
 
-    private void updateGame() {
-        if (mouse.pressed) {
-            // Checks if a user can pick up a piece
-            if (activePiece == null) {
-                for (Piece piece : simPieces) {
-                    // Pick a piece if mouse is on Array piece
-                    if (piece.color == currentColor &&
-                            piece.col == mouse.x / Board.SQUARE_SIZE &&
-                            piece.row == mouse.y / Board.SQUARE_SIZE) {
+    
+    private void updateGame(){
+        if(mouse.pressed){
+            //checks if a user can pick up a piece
+            if(activePiece == null){                
+                for(Piece piece : simPieces){
+                    //pick a piece if mouse is on Array piece
+                    if(piece.color == currentColor &&
+                    piece.col == mouse.x/Board.SQUARE_SIZE &&
+                    piece.row == mouse.y/Board.SQUARE_SIZE
+                    ){
                         activePiece = piece;
+                        System.err.println("Picked a piece at: "+piece.col+" , "+ piece.row);
                         break;
+
                     }
                 }
-            } else {
-                // Simulate a move hypothetically
+            }else{
+                //simulate a move hypothetically
                 simulate();
             }
         }
-        if (mouse.pressed == false && activePiece != null) {
-            if (activePiece != null) {
-                if (isValidSquare) {
-                    // Update piece list in case a piece has been captured during simulation
+        if(mouse.pressed==false && activePiece !=null){
+            if(activePiece !=null){
+                if(isValidSquare){
+                    //Update piece list incase a piece has beeen captured during simulation
                     copyPieces(simPieces, pieces);
                     activePiece.updatePosition();
-
-                    // Handle en passant capture
-                    if (activePiece instanceof Pawn && activePiece.hittingPiece != null && activePiece.hittingPiece.isTwoStepped) {
-                        pieces.remove(activePiece.hittingPiece);
-                        simPieces.remove(activePiece.hittingPiece);
-                    }
+                    //System.out.println("Dropped at: " + activePiece.col + ", " + activePiece.row);
 
                     if (castlingPiece != null) {
                         castlingPiece.updatePosition(); // Update the rook's position
@@ -147,33 +161,37 @@ public class GamePanel extends JPanel implements Runnable {
                     }
 
                     changePlayer();
-                } else {
-                    // Reset everything
+
+                }else{
+
+                    //Reset everything
                     copyPieces(pieces, simPieces);
-                    activePiece.resetPosition();
-                    activePiece = null; // Since it has been released
+                    activePiece.resetPosition();            
+                    activePiece = null;//since it has been released
+
+                    System.out.println("Invalid Position");
                 }
             }
         }
     }
 
-    private void simulate() {
+    private void simulate(){
         canMove = false;
         isValidSquare = false;
 
-        // Reset piece list in every loop
+        //Reset piece list in every loop
         copyPieces(pieces, simPieces);
 
-        // Reset castling
-        if (castlingPiece != null) {
+        //reset castling
+        if(castlingPiece !=null){
             castlingPiece.col = castlingPiece.preCol;
-            castlingPiece.x = castlingPiece.getX(castlingPiece.col);
+            castlingPiece.x=castlingPiece.getX(castlingPiece.col);
             castlingPiece = null;
         }
 
-        // Subtract half square to center the mouse
-        activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
-        activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
+        //subtract half square to center the mouse
+        activePiece.x = mouse.x-Board.HALF_SQUARE_SIZE;
+        activePiece.y = mouse.y-Board.HALF_SQUARE_SIZE;
         activePiece.col = activePiece.getCol(activePiece.x);
         activePiece.row = activePiece.getRow(activePiece.y);
 
@@ -184,11 +202,19 @@ public class GamePanel extends JPanel implements Runnable {
             if (activePiece instanceof King) {
                 int colDiff = Math.abs(activePiece.col - activePiece.preCol);
                 if (colDiff == 2) { // Castling move
-                    int rookCol = (activePiece.col > activePiece.preCol) ? 7 : 0; // Kingside or queenside
-                    for (Piece piece : simPieces) {
-                        if (piece.col == rookCol && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
-                            castlingPiece = piece;
-                            break;
+                    if (activePiece.col > activePiece.preCol) { // Kingside castling
+                        for (Piece piece : simPieces) {
+                            if (piece.col == 7 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                                castlingPiece = piece;
+                                break;
+                            }
+                        }
+                    } else { // Queenside castling
+                        for (Piece piece : simPieces) {
+                            if (piece.col == 0 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                                castlingPiece = piece;
+                                break;
+                            }
                         }
                     }
                 }
@@ -202,43 +228,43 @@ public class GamePanel extends JPanel implements Runnable {
         }
 
         checkCastling();
+        
     }
 
     private void checkCastling() {
         if (castlingPiece != null) {
-            int rookCol = (castlingPiece.col == 0) ? 3 : 5; // Queenside or kingside
-            castlingPiece.col = rookCol;
-            castlingPiece.x = castlingPiece.getX(rookCol);
+            if (castlingPiece.col == 0) {
+                castlingPiece.col += 3;
+            } else if (castlingPiece.col == 7) {
+                castlingPiece.col -= 2;
+            }
+            castlingPiece.x = castlingPiece.getX(castlingPiece.col);
         }
     }
 
-    private void changePlayer() {
-        currentColor = (currentColor == WHITE) ? BLACK : WHITE;
-
-        // Reset the isTwoStepped flag for pawns of the new player's color
-        for (Piece piece : pieces) {
-            if (piece instanceof Pawn && piece.color == currentColor) {
-                ((Pawn) piece).isTwoStepped = false;
-            }
+    private void changePlayer(){
+        if(currentColor == WHITE){
+            currentColor =BLACK;
+        }else{
+            currentColor =WHITE;
         }
-
         activePiece = null;
     }
-
-    // Will handle all the drawing
-    public void paintComponent(Graphics graphics) {
+    
+    //will handle all the drawing
+    public void paintComponent(Graphics graphics){
         super.paintComponent(graphics);
 
         Graphics2D g2d = (Graphics2D) graphics;
-        // Draw board
+        //draw board
         board.draw2DBoard(g2d);
 
-        // Draw pieces
-        for (Piece p : pieces) {
+        //draw pieces
+        for(Piece p : pieces){
             p.drawPiece(g2d);
         }
 
-        if (activePiece != null) {
+        if (activePiece != null) {            
             // Ensuring the highlight is within bounds
             if (canMove) {
                 g2d.setColor(Color.white);
@@ -246,20 +272,22 @@ public class GamePanel extends JPanel implements Runnable {
                 g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
             }
-
+        
             // Draw the active piece
             activePiece.drawPiece(g2d);
         }
 
-        // Status message
+        //Status message
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
         g2d.setColor(Color.white);
 
-        if (currentColor == WHITE) {
-            g2d.drawString("White's Turn", 640, 550);
-        } else {
+        if(currentColor == WHITE){
+            g2d.drawString("White's Turn", 640, 550);            
+        }else{
             g2d.drawString("Black's Turn", 640, 50);
         }
     }
+
+
 }
