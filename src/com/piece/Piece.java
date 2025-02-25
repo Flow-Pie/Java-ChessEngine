@@ -2,6 +2,8 @@ package com.piece;
 
 import com.main.Board;
 import com.main.GamePanel;
+import com.main.Type;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -15,7 +17,8 @@ public class Piece {
     public int col, row, preCol, preRow;
     public int color;
     public Piece hittingPiece;
-    public boolean moved;
+    public Type type;
+    public boolean moved, twoStepped;
 
     public Piece(int color, int col, int row){
         this.color = color;
@@ -81,6 +84,12 @@ public class Piece {
 
 
     public void updatePosition(){
+        if(type == Type.PAWN){
+            if(Math.abs(row-preRow)==2){
+                twoStepped=true;
+            }
+        }
+
         //place piece at the center
         x =getX(col);
         y =getY(row);

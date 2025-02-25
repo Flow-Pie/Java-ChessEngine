@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 
 
+
 public class GamePanel extends JPanel implements Runnable{
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
@@ -25,6 +26,7 @@ public class GamePanel extends JPanel implements Runnable{
     public static ArrayList<Piece> simPieces = new ArrayList<>();
     Piece activePiece;
     public static Piece castlingPiece;
+    ArrayList<Piece> promoPieces = new ArrayList<>();
 
     //COLOR
     public static final int WHITE = 0;
@@ -34,6 +36,7 @@ public class GamePanel extends JPanel implements Runnable{
     //Booleans
     boolean canMove;
     boolean isValidSquare;
+    boolean promotion;
 
     public GamePanel(){
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -245,11 +248,27 @@ public class GamePanel extends JPanel implements Runnable{
     private void changePlayer(){
         if(currentColor == WHITE){
             currentColor =BLACK;
+            for(Piece piece : pieces){
+                if(piece.color == BLACK){
+                    piece.twoStepped = false;
+                }
+            }
         }else{
             currentColor =WHITE;
+            for(Piece piece : pieces){
+                if(piece.color == WHITE){
+                    piece.twoStepped = false;
+                }
+            }
         }
         activePiece = null;
     }
+
+//    private  boolean canPromote(){
+//        if(activePiece.type = Type.PAWN){
+//
+//        }
+//    }
     
     //will handle all the drawing
     public void paintComponent(Graphics graphics){
