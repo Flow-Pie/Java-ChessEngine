@@ -24,6 +24,7 @@ public class GamePanel extends JPanel implements Runnable{
     public static ArrayList<Piece> pieces = new ArrayList<>();//backup list
     public static ArrayList<Piece> simPieces = new ArrayList<>();
     Piece activePiece;
+    public static Piece castlingPiece;
 
     //COLOR
     public static final int WHITE = 0;
@@ -59,19 +60,19 @@ public class GamePanel extends JPanel implements Runnable{
         pieces.add(new Pawn(WHITE,5,6));
         pieces.add(new Pawn(WHITE,6,6));
         pieces.add(new Pawn(WHITE,7,6));
-        // pieces.add(new Rook(WHITE,0,7));
-        pieces.add(new Rook(WHITE,0,4));
+        pieces.add(new Rook(WHITE,0,7));
+       // pieces.add(new Rook(WHITE,0,4));
         pieces.add(new Rook(WHITE,7,7));
-        pieces.add(new Knight(WHITE,1,7));
-        pieces.add(new Knight(WHITE,6,7));
+//        pieces.add(new Knight(WHITE,1,7));
+//        pieces.add(new Knight(WHITE,6,7));
         // pieces.add(new Bishop(WHITE,2,7));
-        pieces.add(new Bishop(WHITE,5,4));
-        pieces.add(new Bishop(WHITE,5,7));
+//        pieces.add(new Bishop(WHITE,5,4));
+//        pieces.add(new Bishop(WHITE,5,7));
         // pieces.add(new Queen(WHITE,3,7));
-        pieces.add(new Queen(WHITE,3,5));
+//        pieces.add(new Queen(WHITE,3,5));
 
-        // pieces.add(new King(WHITE,4,7));
-        pieces.add(new King(WHITE,4,4));
+        pieces.add(new King(WHITE,4,7));
+//        pieces.add(new King(WHITE,4,4));
 
 
         //Black pieces
@@ -154,9 +155,15 @@ public class GamePanel extends JPanel implements Runnable{
                     activePiece.updatePosition();
                     //System.out.println("Dropped at: " + activePiece.col + ", " + activePiece.row);
 
+                    if (castlingPiece != null) {
+                        castlingPiece.updatePosition(); // Update the rook's position
+                        castlingPiece = null; // Reset the castling piece
+                    }
+
                     changePlayer();
 
-                }else{    
+                }else{
+
                     //Reset everything
                     copyPieces(pieces, simPieces);
                     activePiece.resetPosition();            
@@ -175,22 +182,64 @@ public class GamePanel extends JPanel implements Runnable{
         //Reset piece list in every loop
         copyPieces(pieces, simPieces);
 
+        //reset castling
+        if(castlingPiece !=null){
+            castlingPiece.col = castlingPiece.preCol;
+            castlingPiece.x=castlingPiece.getX(castlingPiece.col);
+            castlingPiece = null;
+        }
+
         //subtract half square to center the mouse
         activePiece.x = mouse.x-Board.HALF_SQUARE_SIZE;
         activePiece.y = mouse.y-Board.HALF_SQUARE_SIZE;
         activePiece.col = activePiece.getCol(activePiece.x);
         activePiece.row = activePiece.getRow(activePiece.y);
 
-        if(activePiece.canMove(activePiece.col, activePiece.row)){
+        if (activePiece.canMove(activePiece.col, activePiece.row)) {
             canMove = true;
-            //remove hitted piece from the list
-            if(activePiece.hittingPiece !=null){
-                System.out.println("Hitting piece: " + activePiece.hittingPiece);
+
+            // Handle castling
+            if (activePiece instanceof King) {
+                int colDiff = Math.abs(activePiece.col - activePiece.preCol);
+                if (colDiff == 2) { // Castling move
+                    if (activePiece.col > activePiece.preCol) { // Kingside castling
+                        for (Piece piece : simPieces) {
+                            if (piece.col == 7 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                                castlingPiece = piece;
+                                break;
+                            }
+                        }
+                    } else { // Queenside castling
+                        for (Piece piece : simPieces) {
+                            if (piece.col == 0 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                                castlingPiece = piece;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Remove the captured piece from the list
+            if (activePiece.hittingPiece != null) {
                 simPieces.remove(activePiece.hittingPiece.getIndex());
             }
             isValidSquare = true;
         }
+
+        checkCastling();
         
+    }
+
+    private void checkCastling() {
+        if (castlingPiece != null) {
+            if (castlingPiece.col == 0) {
+                castlingPiece.col += 3;
+            } else if (castlingPiece.col == 7) {
+                castlingPiece.col -= 2;
+            }
+            castlingPiece.x = castlingPiece.getX(castlingPiece.col);
+        }
     }
 
     private void changePlayer(){
