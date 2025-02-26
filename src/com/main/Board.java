@@ -25,7 +25,6 @@ public class Board {
                 g2d.fillRect(col*SQUARE_SIZE, row*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
             }
 
-            //change color for next row
             if(colorCol ==0){
                 colorCol =1;
             }else{

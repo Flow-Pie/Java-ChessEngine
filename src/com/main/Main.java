@@ -8,7 +8,6 @@ public class Main {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setResizable(false);
 
-        //add game panel to this window
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);
         window.pack();

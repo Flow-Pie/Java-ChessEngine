@@ -69,7 +69,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     public void launchGameThread(){
         gameThread = new Thread(this);
-        gameThread.start(); //starting a thread calls a run method
+        gameThread.start(); 
     }
 
     public void SetPieces(){
@@ -153,10 +153,8 @@ public class GamePanel extends JPanel implements Runnable{
             promoting();
         }else{
             if(mouse.pressed){
-                //checks if a user can pick up a piece
                 if(activePiece == null){                
                     for(Piece piece : simPieces){
-                        //pick a piece if mouse is on Array piece
                         if(piece.color == currentColor &&
                         piece.col == mouse.x/Board.SQUARE_SIZE &&
                         piece.row == mouse.y/Board.SQUARE_SIZE
@@ -180,7 +178,6 @@ public class GamePanel extends JPanel implements Runnable{
                         //MOVE CONFIRMED
 
 
-                        //Update piece list incase a piece has beeen captured during simulation
                         copyPieces(simPieces, pieces);
                         activePiece.updatePosition();
     
@@ -270,7 +267,6 @@ public class GamePanel extends JPanel implements Runnable{
                 }
             }
 
-            // Remove the captured piece from the list
             if (activePiece.hittingPiece != null) {
                 simPieces.remove(activePiece.hittingPiece.getIndex());
             }
@@ -431,13 +427,11 @@ public class GamePanel extends JPanel implements Runnable{
         if (activePiece != null) {
             if (canMove || opponentCanCapturKing()) {
                 if (isIllegalKingMove(activePiece)) {
-                    // Highlight the square in red if the move is illegal
                     g2d.setColor(Color.red);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
                 } else {
-                    // Highlight the square in white if the move is valid
                     g2d.setColor(Color.white);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
@@ -445,21 +439,18 @@ public class GamePanel extends JPanel implements Runnable{
                 }
             }
 
-            // Draw the active piece
             activePiece.drawPiece(g2d);
         }
 
-        // Highlight the king's square if it is in check
         if (checkingPiece != null) {
-            Piece king = getKing(false); // Get the current player's king
+            Piece king = getKing(false); 
             if (king != null) {
                 g2d.setColor(Color.red);
-                g2d.setStroke(new BasicStroke(4)); // Thicker border for emphasis
+                g2d.setStroke(new BasicStroke(4)); 
                 g2d.drawRect(king.col * Board.SQUARE_SIZE, king.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
             }
         }
 
-        // Status messages
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
         g2d.setColor(Color.white);
@@ -471,7 +462,6 @@ public class GamePanel extends JPanel implements Runnable{
                 g2d.drawImage(p.image, p.getX(p.col), p.getY(p.row), Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
             }
         } else {
-            // Display whose turn it is and check status
             if (currentColor == WHITE) {
                 g2d.drawString("White's Turn", 640, 550);
                 if (checkingPiece != null && checkingPiece.color == BLACK) {
@@ -487,12 +477,11 @@ public class GamePanel extends JPanel implements Runnable{
             }
         }
 
-        // Game over message (if applicable)
-        if (gameOver) {
-            g2d.setColor(Color.red);
-            g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
-            g2d.drawString("Checkmate! Game Over.", WIDTH / 2 - 150, HEIGHT / 2);
-        }
+        // if (gameOver) {
+        //     g2d.setColor(Color.red);
+        //     g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
+        //     g2d.drawString("Checkmate! Game Over.", WIDTH / 2 - 150, HEIGHT / 2);
+        // }
     }
 
 

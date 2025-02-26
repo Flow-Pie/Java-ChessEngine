@@ -3,7 +3,6 @@ package com.piece;
 import com.main.Board;
 import com.main.GamePanel;
 import com.main.Type;
-
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -90,7 +89,6 @@ public class Piece {
             }
         }
 
-        //place piece at the center
         x =getX(col);
         y =getY(row);
 
@@ -125,11 +123,9 @@ public class Piece {
     public boolean isValidSquare(int targetCol, int targetRow){
         hittingPiece = getHittingPiece(targetCol, targetRow);
         if(hittingPiece == null){
-            //square vacant
             return true;
         }else {
             if(hittingPiece.color != this.color){
-                //piece can be captured
                 return true;
             }else{
                 hittingPiece = null;
@@ -146,7 +142,6 @@ public class Piece {
     }
 
     public boolean isStraightPathBlocked(int targetCol, int targetRow) {
-        //(left or right)
         if (targetRow == preRow) {
             int step = (targetCol > preCol) ? 1 : -1; 
             for (int c = preCol + step; c != targetCol; c += step) {
@@ -218,9 +213,7 @@ public class Piece {
     }
 
     
-    /**
-     * Checks if a specific square is occupied by any piece.
-     */
+   
     private boolean isSquareOccupied(int col, int row) {
         for (Piece piece : GamePanel.simPieces) {
             if (piece.col == col && piece.row == row) {
