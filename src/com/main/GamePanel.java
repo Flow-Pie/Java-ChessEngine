@@ -2,6 +2,7 @@ package com.main;
 
 import com.piece.*;
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,7 +25,7 @@ public class GamePanel extends JPanel implements Runnable{
     //PIECES
     public static ArrayList<Piece> pieces = new ArrayList<>();//backup list
     public static ArrayList<Piece> simPieces = new ArrayList<>();
-    Piece activePiece;
+    Piece activePiece, checkingPiece;
     public static Piece castlingPiece;
         ArrayList<Piece> promoPieces = new ArrayList<>();
 
@@ -37,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable{
     boolean canMove;
     boolean isValidSquare;
     boolean promotion;
+    boolean gameOver;
 
     public GamePanel(){
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -46,6 +48,23 @@ public class GamePanel extends JPanel implements Runnable{
 
         SetPieces();
         copyPieces(pieces , simPieces);
+    }
+    
+    private Piece getKing(boolean opponent){
+        Piece king = null;
+
+        for(Piece p : simPieces){
+            if(opponent){
+                if(p.type == Type.KING && p.color != currentColor){
+                    king=p;
+                }
+            }else{
+                if(p.type == Type.KING && p.color == currentColor){
+                    king=p;
+                }
+            }
+        }
+        return king;
     }
 
     public void launchGameThread(){
@@ -154,8 +173,13 @@ public class GamePanel extends JPanel implements Runnable{
                 }
             }
             if(mouse.pressed==false && activePiece !=null){
+
                 if(activePiece !=null){
+
                     if(isValidSquare){
+                        //MOVE CONFIRMED
+
+
                         //Update piece list incase a piece has beeen captured during simulation
                         copyPieces(simPieces, pieces);
                         activePiece.updatePosition();
@@ -164,13 +188,27 @@ public class GamePanel extends JPanel implements Runnable{
                             castlingPiece.updatePosition(); // Update the rook's position
                             castlingPiece = null; // !!Reset the castling piece
                         }
-    
+
+                        if(isKingInCheck()){
+                            System.out.println("CHECK!!");
+                            //! TODO impliment gameover
+                        }
+                        // else{
+                        //     if(canPromote()){
+                        //         promotion =true;
+                        //     }else{
+                        //         changePlayer();
+                        //     }
+        
+                        // }
+
                         if(canPromote()){
                             promotion =true;
                         }else{
                             changePlayer();
                         }
     
+                       
                     }else{
     
                         //Reset everything
@@ -241,33 +279,72 @@ public class GamePanel extends JPanel implements Runnable{
 
         checkCastling();
 
-        if(!isIllegalKingMove(activePiece)){
-            isValidSquare = true;
+        if (activePiece.canMove(activePiece.col, activePiece.row)) {
+            canMove = true;
+            if (!isIllegalKingMove(activePiece) && !opponentCanCapturKing()) {
+                isValidSquare = true;
+            }
         }
         
     }
 
-    private boolean isIllegalKingMove(Piece king){
-        if(king.type == Type.KING){
-            for(Piece p : simPieces){
-                if(p != king && p.color !=king.color && p.canMove(king.col, king.row)){
+    private boolean isIllegalKingMove(Piece king) {
+        if (king.type == Type.KING) {
+            for (Piece p : simPieces) {
+                if (p != king && p.color != king.color && p.canMove(king.col, king.row)) {
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    private boolean isKingInCheck(){
+        Piece king = getKing(true);
+
+        if(activePiece.canMove(king.col, king.row)){
+            checkingPiece = activePiece;
+            return true;
+        }else{
+            checkingPiece = null;
         }
 
         return false;
     }
 
+    public boolean opponentCanCapturKing(){
+
+        Piece king = getKing(false);
+
+        for(Piece piece : simPieces){
+            if(piece.color != king.color && piece.canMove(king.col, king.row)){
+                return true;
+            }
+        }
+        
+        return false;
+    }
 
     private void checkCastling() {
-        if (castlingPiece != null) {
-            if (castlingPiece.col == 0) {
-                castlingPiece.col += 3;
-            } else if (castlingPiece.col == 7) {
-                castlingPiece.col -= 2;
+        if (activePiece instanceof King) {
+            int colDiff = Math.abs(activePiece.col - activePiece.preCol);
+            if (colDiff == 2) { // Castling move
+                if (activePiece.col > activePiece.preCol) { // Kingside castling
+                    for (Piece piece : simPieces) {
+                        if (piece.col == 7 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                            castlingPiece = piece;
+                            break;
+                        }
+                    }
+                } else { // Queenside castling
+                    for (Piece piece : simPieces) {
+                        if (piece.col == 0 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                            castlingPiece = piece;
+                            break;
+                        }
+                    }
+                }
             }
-            castlingPiece.x = castlingPiece.getX(castlingPiece.col);
         }
     }
 
@@ -305,12 +382,12 @@ public class GamePanel extends JPanel implements Runnable{
        return false;
    }
    
-   public void promoting(){
-        if(mouse.pressed){
-            for(Piece p : promoPieces){
-                if(p.col == mouse.x/Board.SQUARE_SIZE && p.row == mouse.y/Board.SQUARE_SIZE){
-                    switch(p.type){
-                        case ROOK: 
+    private void promoting() {
+        if (mouse.pressed) {
+            for (Piece p : promoPieces) {
+                if (p.col == mouse.x / Board.SQUARE_SIZE && p.row == mouse.y / Board.SQUARE_SIZE) {
+                    switch (p.type) {
+                        case ROOK:
                             simPieces.add(new Rook(currentColor, activePiece.col, activePiece.row));
                             break;
                         case KNIGHT:
@@ -330,66 +407,92 @@ public class GamePanel extends JPanel implements Runnable{
                     activePiece = null;
                     promotion = false;
                     changePlayer();
-
                 }
             }
         }
-   }
+    }
 
     //will handle all the drawing
-    public void paintComponent(Graphics graphics){
+    @Override
+    public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
 
         Graphics2D g2d = (Graphics2D) graphics;
-        //draw board
+
+        // Draw the board
         board.draw2DBoard(g2d);
 
-        //draw pieces
-        for(Piece p : pieces){
+        // Draw the pieces
+        for (Piece p : pieces) {
             p.drawPiece(g2d);
         }
 
-        if (activePiece != null) {            
-            // Ensuring the highlight is within bounds
-            if (canMove) {
-                if(isIllegalKingMove(activePiece)){
+        // Highlight the active piece's valid moves
+        if (activePiece != null) {
+            if (canMove || opponentCanCapturKing()) {
+                if (isIllegalKingMove(activePiece)) {
+                    // Highlight the square in red if the move is illegal
                     g2d.setColor(Color.red);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                    activePiece.resetPosition();//TODO optimise this logic later
-                }else{
+                } else {
+                    // Highlight the square in white if the move is valid
                     g2d.setColor(Color.white);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
                     g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
                     g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
                 }
-                
             }
-        
+
             // Draw the active piece
             activePiece.drawPiece(g2d);
         }
 
-        //Status message
+        // Highlight the king's square if it is in check
+        if (checkingPiece != null) {
+            Piece king = getKing(false); // Get the current player's king
+            if (king != null) {
+                g2d.setColor(Color.red);
+                g2d.setStroke(new BasicStroke(4)); // Thicker border for emphasis
+                g2d.drawRect(king.col * Board.SQUARE_SIZE, king.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+            }
+        }
+
+        // Status messages
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
         g2d.setColor(Color.white);
 
-        if(promotion){
+        if (promotion) {
+            // Promotion UI
             g2d.drawString("Promote to: ", 650, 100);
-            for(Piece p: promoPieces){
-                g2d.drawImage(p.image, p.getX(p.col), p.getY(p.row),
-                Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
+            for (Piece p : promoPieces) {
+                g2d.drawImage(p.image, p.getX(p.col), p.getY(p.row), Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
             }
-        }else{
-            if(currentColor == WHITE){
-                g2d.drawString("White's Turn", 640, 550);            
-            }else{
+        } else {
+            // Display whose turn it is and check status
+            if (currentColor == WHITE) {
+                g2d.drawString("White's Turn", 640, 550);
+                if (checkingPiece != null && checkingPiece.color == BLACK) {
+                    g2d.setColor(Color.red);
+                    g2d.drawString("The king is in check!", 640, 580); // Adjusted y-coordinate for better spacing
+                }
+            } else {
                 g2d.drawString("Black's Turn", 640, 50);
+                if (checkingPiece != null && checkingPiece.color == WHITE) {
+                    g2d.setColor(Color.red);
+                    g2d.drawString("The king is in check!", 640, 80); // Adjusted y-coordinate for better spacing
+                }
             }
         }
 
+        // Game over message (if applicable)
+        if (gameOver) {
+            g2d.setColor(Color.red);
+            g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
+            g2d.drawString("Checkmate! Game Over.", WIDTH / 2 - 150, HEIGHT / 2);
+        }
     }
 
 
