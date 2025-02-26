@@ -1,21 +1,31 @@
-```markdown
 # Java Chess Engine ♟️🤖
 
 ## Overview
 
-The **Java Chess Engine** is a fully functional chess engine built with Java. It enables playing chess, evaluating positions, and making intelligent decisions through AI. Designed to be modular, efficient, and extendable, this engine is ideal for use in standalone chess games, as well as for AI research and educational purposes.
+The **Java Chess Engine** is a fully functional chess engine built with Java. It allows you to play chess, evaluate positions, and make intelligent decisions through AI. Designed to be modular, efficient, and extendable, this engine is perfect for use in standalone chess games, AI research, or educational purposes.
 
-With advanced features like move generation, board evaluation, AI-based decision making, and support for common chess formats, this engine serves as a powerful tool for developers and chess enthusiasts alike.
+With advanced features such as move generation, board evaluation, **PGN support**, and a **Swing-based graphical user interface (GUI)**, this engine is a great tool for developers and chess enthusiasts alike. Future updates will introduce AI-based decision-making, allowing you to play against the computer in single-player mode.
+
+---
 
 ## Features 🌟
 
+### Current Features
 - **Move Generation**: Automatically generates all legal chess moves based on the current board state.
-- **Board Evaluation**: Uses heuristic algorithms to evaluate and score board positions for both human and AI players.
-- **AI Player**: Implements the **minimax algorithm** with **alpha-beta pruning** for an optimized AI player.
-- **Command-Line Interface (CLI)**: A simple and intuitive CLI for interactive gameplay.
+- **Board Evaluation**: Uses heuristic algorithms to evaluate and score board positions.
+- **Swing-Based GUI**: A visually appealing and interactive graphical user interface built using Java Swing for playing chess.
+- **Chess Engine Core**: Fully functional chess logic, including move validation, check/checkmate detection, and game state management.
+- **Two-Player Mode**: Supports two human players playing against each other.
 - **PGN Support**: Load and save games in **PGN (Portable Game Notation)** format for easy game sharing and analysis.
+
+### Upcoming Features 🚀
+- **AI Player**: Implementation of the **minimax algorithm** with **alpha-beta pruning** for an optimized AI player, enabling single-player mode.
+- **Command-Line Interface (CLI)**: A simple and intuitive CLI for interactive gameplay.
 - **FEN Notation**: Parses and generates **FEN (Forsyth-Edwards Notation)** strings to represent board states.
 - **API Integration**: Exposes a RESTful API to interact with the engine programmatically.
+- **Maven Support**: Integration with Maven for better dependency management and project building.
+
+---
 
 ## Installation ⚙️
 
@@ -24,7 +34,6 @@ With advanced features like move generation, board evaluation, AI-based decision
 Before you begin, ensure that you have the following installed:
 
 - **Java 11 or later** (for running the engine)
-- **Maven** (for dependency management and building the project)
 
 ### Clone the Repository
 
@@ -33,84 +42,115 @@ Start by cloning the repository to your local machine:
 ```sh
 $ git clone https://github.com/Flow-Pie/Java-ChessEngine.git
 $ cd Java-ChessEngine
-```
+Running the Application
+To run the chess engine with the Swing-based GUI, navigate to the project directory and execute the following command:
 
-### Build and Run the Project
+sh
+Copy code
+$ java -cp . com.main.Main
+This will launch the graphical user interface, allowing two players to play chess interactively.
 
-To compile and run the chess engine, use Maven:
+Project Structure 🗂️
+Here’s an overview of the project structure:
 
-```sh
-$ mvn compile
-$ mvn exec:java -Dexec.mainClass="com.main.ChessGame"
-```
+plaintext
+Copy code
+Java-ChessEngine/
+├── Chess.iml
+├── out/                          # Compiled class files
+│   ├── com/
+│   │   ├── main/
+│   │   │   ├── Board.class
+│   │   │   ├── GamePanel$1.class
+│   │   │   ├── GamePanel.class
+│   │   │   ├── Main.class
+│   │   │   ├── Mouse.class
+│   │   │   └── Type.class
+│   │   └── piece/
+│   │       ├── Bishop.class
+│   │       ├── King.class
+│   │       ├── Knight.class
+│   │       ├── Pawn.class
+│   │       ├── Piece.class
+│   │       ├── Queen.class
+│   │       └── Rook.class
+│   └── production/
+│       └── Chess/
+│           ├── com/
+│           │   ├── main/
+│           │   │   ├── Board.class
+│           │   │   ├── GamePanel.class
+│           │   │   ├── Main.class
+│           │   │   ├── Mouse.class
+│           │   │   └── Type.class
+│           │   └── piece/
+│           │       ├── Bishop.class
+│           │       ├── King.class
+│           │       ├── Knight.class
+│           │       ├── Pawn.class
+│           │       ├── Piece.class
+│           │       ├── Queen.class
+│           │       └── Rook.class
+│           └── piece/
+│               ├── b-bishop.png
+│               ├── b-king.png
+│               ├── b-knight.png
+│               ├── b-pawn.png
+│               ├── b-queen.png
+│               ├── b-rook.png
+│               ├── w-bishop.png
+│               ├── w-king.png
+│               ├── w-knight.png
+│               ├── w-pawn.png
+│               ├── w-queen.png
+│               └── w-rook.png
+├── README.md                     # Project documentation
+├── res/                          # Resource files (piece images)
+│   └── piece/
+│       ├── b-bishop.png
+│       ├── b-king.png
+│       ├── b-knight.png
+│       ├── b-pawn.png
+│       ├── b-queen.png
+│       ├── b-rook.png
+│       ├── w-bishop.png
+│       ├── w-king.png
+│       ├── w-knight.png
+│       ├── w-pawn.png
+│       ├── w-queen.png
+│       └── w-rook.png
+├── src/                          # Source code
+│   └── com/
+│       ├── main/                 # Main application logic
+│       │   ├── Board.java        # Board representation and state management
+│       │   ├── GamePanel.java    # GUI panel for the chessboard
+│       │   ├── Main.java         # Entry point for the application
+│       │   ├── Mouse.java        # Mouse event handling for piece movement
+│       │   └── Type.java         # Enum for piece types
+│       └── piece/                # Chess piece logic
+│           ├── Bishop.java       # Bishop piece implementation
+│           ├── King.java         # King piece implementation
+│           ├── Knight.java       # Knight piece implementation
+│           ├── Pawn.java         # Pawn piece implementation
+│           ├── Piece.java        # Base class for all chess pieces
+│           ├── Queen.java        # Queen piece implementation
+│           └── Rook.java         # Rook piece implementation
+└── structure.txt                 # File structure overview
+Future Enhancements 🌱
+AI Integration: Implement AI-based decision-making using advanced algorithms like minimax with alpha-beta pruning, enabling single-player mode.
+FEN Support: Add support for parsing and generating FEN strings to represent board states.
+RESTful API: Develop a RESTful API to allow programmatic interaction with the chess engine.
+Maven Integration: Integrate Maven for better dependency management and project building.
+Unit Testing: Add comprehensive unit tests to ensure the reliability and correctness of the engine.
+Enhanced GUI Features: Add features like undo/redo, game history, and a settings menu for customization.
+Contributing 🤝
+Contributions are welcome! If you'd like to contribute to the development of this chess engine, please follow these steps:
 
-This will start the game, and you'll be able to interact with the engine via the command-line interface.
+Fork the repository.
+Create a new branch for your feature or bugfix.
+Commit your changes and push them to your fork.
+Submit a pull request with a detailed description of your changes.
+License 📄
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
-## Usage 🕹️
-
-After running the engine, you can start playing chess by entering moves using **standard algebraic notation**. For example:
-
-- **e2e4** (moving a pawn from e2 to e4)
-- **Nf3** (moving a knight to f3)
-
-The AI will respond to each move, attempting to play the best possible response based on its evaluation of the board.
-
-### Example of Game Flow:
-1. **User Move**: `e2e4`
-2. **AI Response**: `e7e5`
-3. **User Move**: `Nf3`
-4. **AI Response**: `Nc6`
-
-### API Integration
-
-The engine provides a RESTful API for seamless integration with external applications, such as mobile apps, web apps, or other services. The following endpoints are available:
-
-- `POST /move`: Submits a move in algebraic notation and returns the updated board state.
-- `GET /board`: Returns the current board state in FEN format.
-- `POST /undo`: Undoes the last move made.
-
-Example API request:
-
-```sh
-POST /move
-{
-  "move": "e2e4"
-}
-```
-
-### Example Response:
-
-```json
-{
-  "status": "success",
-  "board": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-}
-```
-
-## Contributing 💻
-
-We welcome contributions! Here's how you can help improve this project:
-
-1. **Fork** the repository to your own GitHub account.
-2. **Create a feature branch** (`git checkout -b feature-name`).
-3. **Commit your changes** (`git commit -m 'Add new feature'`).
-4. **Push to the branch** (`git push origin feature-name`).
-5. **Submit a pull request** with a detailed description of your changes.
-
-Please ensure that your code follows the project's coding conventions and includes relevant tests where applicable.
-
-## License 📜
-
-This project is licensed under the **MIT License**. See the `LICENSE` file for more details.
-
-## Contact 📬
-
-For any issues, suggestions, or inquiries, please feel free to:
-
-- Create an issue on [GitHub Issues](https://github.com/Flow-Pie/Java-ChessEngine/issues).
-- Contact the project maintainer, **Flow-Pie**, via GitHub discussions.
-
-Happy coding and playing! 🎮♟️
-```
-
-
+Enjoy playing and developing with the Java Chess Engine! Feel free to reach out with any questions or suggestions. Happy coding! 🎉
