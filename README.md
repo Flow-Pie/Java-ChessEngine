@@ -136,21 +136,24 @@ Java-ChessEngine/
 │           ├── Queen.java        # Queen piece implementation
 │           └── Rook.java         # Rook piece implementation
 └── structure.txt                 # File structure overview
-Future Enhancements 🌱
+```
+##Future Enhancements 🌱
 AI Integration: Implement AI-based decision-making using advanced algorithms like minimax with alpha-beta pruning, enabling single-player mode.
 FEN Support: Add support for parsing and generating FEN strings to represent board states.
 RESTful API: Develop a RESTful API to allow programmatic interaction with the chess engine.
 Maven Integration: Integrate Maven for better dependency management and project building.
 Unit Testing: Add comprehensive unit tests to ensure the reliability and correctness of the engine.
 Enhanced GUI Features: Add features like undo/redo, game history, and a settings menu for customization.
-Contributing 🤝
+
+##Contributing 🤝
 Contributions are welcome! If you'd like to contribute to the development of this chess engine, please follow these steps:
 
-Fork the repository.
+##Fork the repository.
 Create a new branch for your feature or bugfix.
 Commit your changes and push them to your fork.
 Submit a pull request with a detailed description of your changes.
-License 📄
+##License 📄
+
 This project is licensed under the MIT License. See the LICENSE file for more details.
 
 Enjoy playing and developing with the Java Chess Engine! Feel free to reach out with any questions or suggestions. Happy coding! 🎉
