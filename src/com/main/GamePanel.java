@@ -240,8 +240,25 @@ public class GamePanel extends JPanel implements Runnable{
         }
 
         checkCastling();
+
+        if(!isIllegalKingMove(activePiece)){
+            isValidSquare = true;
+        }
         
     }
+
+    private boolean isIllegalKingMove(Piece king){
+        if(king.type == Type.KING){
+            for(Piece p : simPieces){
+                if(p != king && p.color !=king.color && p.canMove(king.col, king.row)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 
     private void checkCastling() {
         if (castlingPiece != null) {
@@ -335,10 +352,19 @@ public class GamePanel extends JPanel implements Runnable{
         if (activePiece != null) {            
             // Ensuring the highlight is within bounds
             if (canMove) {
-                g2d.setColor(Color.white);
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                if(isIllegalKingMove(activePiece)){
+                    g2d.setColor(Color.red);
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                    activePiece.resetPosition();//TODO optimise this logic later
+                }else{
+                    g2d.setColor(Color.white);
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                }
+                
             }
         
             // Draw the active piece
