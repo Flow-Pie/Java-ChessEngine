@@ -111,7 +111,6 @@ To run the chess game, follow these steps:
 ## Technologies Used 🛠️
 - **Java**: Core programming language for implementing the chess engine.
 - **Swing**: Used for creating the GUI components.
-- **Maven** (Optional): For dependency management (if required).
 
 ## Contributing 🤝
 
@@ -122,6 +121,17 @@ We welcome contributions! If you'd like to improve or extend the project, feel f
 3. Make your changes.
 4. Test your changes.
 5. Submit a pull request.
+
+## Future Enhancements
+Here are some ideas for future improvements:
+
+1. **AI Opponent**: Implement a basic AI using algorithms like Minimax with Alpha-Beta pruning.
+2. **Multiplayer Support**: Add online multiplayer functionality using sockets or a web-based API.
+3. **Move History**: Display a list of previous moves for both players.
+4. **Sound Effects**: Add sound effects for moves, captures, and checkmate.
+5. **Themes**: Allow users to choose different board and piece themes.
+6. **Save/Load Game**: Implement functionality to save and load game states.
+7. **Chess Clock**: Add a timer for each player to simulate real-world chess games.
 
 ## License 📜
 
