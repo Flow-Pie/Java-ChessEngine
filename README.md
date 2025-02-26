@@ -113,11 +113,4 @@ For any issues, suggestions, or inquiries, please feel free to:
 Happy coding and playing! 🎮♟️
 ```
 
-### Key Changes & Additions:
-1. **Emojis**: Added to enhance readability and make sections stand out.
-2. **Formatted headers and sections**: More clear organization and flow.
-3. **API Example**: Added a concrete example of how to use the `/move` endpoint for API integration.
-4. **Contributing section**: Expanded with specific instructions on contributing.
-5. **Usage section**: Clarified how users should interact with the CLI during gameplay.
 
-This structure should make the README clear, professional, and engaging! Let me know if you'd like any additional changes or improvements!
