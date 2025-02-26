@@ -1,5 +1,3 @@
-Here's a detailed, professional README for your Java Chess Engine project, with some added emojis to make it engaging and easy to follow:
-
 ```markdown
 # Java Chess Engine ♟️🤖
 
