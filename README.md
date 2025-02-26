@@ -1,5 +1,4 @@
 
-```markdown
 # Java Chess Engine ♟️
 
 A fully functional chess engine implemented in Java with a graphical user interface (GUI) to simulate a chessboard and allow players to play chess. The game supports piece movement, basic rules of chess, and utilizes a custom set of piece images for display.
