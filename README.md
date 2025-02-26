@@ -1,4 +1,3 @@
-Here's a professional README for your **Java Chess Engine** project with a Table of Contents (TOC), description, and relevant information. The Markdown includes emojis to enhance readability and engagement.
 
 ```markdown
 # Java Chess Engine ♟️
