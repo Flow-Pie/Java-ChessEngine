@@ -32,7 +32,7 @@ public class Piece {
     public BufferedImage getImage(String imagePath) {
         BufferedImage image = null;
         System.out.println("Attempting to load image: " + imagePath + ".png");
-    
+
         try {
             // Load the image from the classpath
             image = ImageIO.read(getClass().getResourceAsStream(imagePath + ".png"));
@@ -43,7 +43,7 @@ public class Piece {
             System.out.println("Error while reading image: " + imagePath + ".png");
             e.printStackTrace();
         }
-    
+
         return image;
     }
 
@@ -119,7 +119,7 @@ public class Piece {
         }
         return false;
     }
-    
+
     public boolean isValidSquare(int targetCol, int targetRow){
         hittingPiece = getHittingPiece(targetCol, targetRow);
         if(hittingPiece == null){
@@ -133,7 +133,7 @@ public class Piece {
         }
         return false;
     }
-    
+
     public boolean isSameSquare(int targetCol, int targetRow){
         if(targetCol==preCol && targetRow ==preRow){
             return true;
@@ -206,14 +206,14 @@ public class Piece {
                     }
                 }
             }
-        
+
         }
 
         return false;
     }
 
-    
-   
+
+
     private boolean isSquareOccupied(int col, int row) {
         for (Piece piece : GamePanel.simPieces) {
             if (piece.col == col && piece.row == row) {
@@ -226,4 +226,14 @@ public class Piece {
     public void drawPiece(Graphics2D graphic2d){
         graphic2d.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
     }
+
+    // Updates piece position and related attributes directly
+    public void setPosition(int col, int row) {
+        this.col = col;
+        this.row = row;
+        this.x = getX(col);
+        this.y = getY(row);
+    }
+    
+
 }

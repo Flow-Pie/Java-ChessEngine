@@ -83,18 +83,13 @@ public class GamePanel extends JPanel implements Runnable{
         pieces.add(new Pawn(WHITE,6,6));
         pieces.add(new Pawn(WHITE,7,6));
         pieces.add(new Rook(WHITE,0,7));
-       // pieces.add(new Rook(WHITE,0,4));
         pieces.add(new Rook(WHITE,7,7));
-//        pieces.add(new Knight(WHITE,1,7));
-//        pieces.add(new Knight(WHITE,6,7));
-        // pieces.add(new Bishop(WHITE,2,7));
-//        pieces.add(new Bishop(WHITE,5,4));
-//        pieces.add(new Bishop(WHITE,5,7));
-        // pieces.add(new Queen(WHITE,3,7));
-//        pieces.add(new Queen(WHITE,3,5));
-
+        pieces.add(new Knight(WHITE,1,7));
+        pieces.add(new Knight(WHITE,6,7));
+        pieces.add(new Bishop(WHITE,2,7));
+        pieces.add(new Bishop(WHITE,5,7));
+        pieces.add(new Queen(WHITE,3,7));
         pieces.add(new King(WHITE,4,7));
-//        pieces.add(new King(WHITE,4,4));
 
 
         //Black pieces
@@ -151,7 +146,7 @@ public class GamePanel extends JPanel implements Runnable{
     private void updateGame(){
         if(promotion){
             promoting();
-        }else{
+        }else if (gameOver == false){
             if(mouse.pressed){
                 if(activePiece == null){                
                     for(Piece piece : simPieces){
@@ -186,24 +181,17 @@ public class GamePanel extends JPanel implements Runnable{
                             castlingPiece = null; // !!Reset the castling piece
                         }
 
-                        if(isKingInCheck()){
-                            System.out.println("CHECK!!");
-                            //! TODO impliment gameover
-                        }
-                        // else{
-                        //     if(canPromote()){
-                        //         promotion =true;
-                        //     }else{
-                        //         changePlayer();
-                        //     }
-        
-                        // }
+                        if(isKingInCheck() && isCheckMate()){
+                            System.out.println("CHECK GAME OVER!!");
+                            gameOver = true;
+                        }else{//game continues
+                             if(canPromote()){
+                                 promotion =true;
+                             }else{
+                                 changePlayer();
+                             }
 
-                        if(canPromote()){
-                            promotion =true;
-                        }else{
-                            changePlayer();
-                        }
+                         }
     
                        
                     }else{
@@ -223,66 +211,68 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     private void simulate(){
-        canMove = false;
-        isValidSquare = false;
+    canMove = false;
+    isValidSquare = false;
 
-        //Reset piece list in every loop
-        copyPieces(pieces, simPieces);
+    //Reset piece list in every loop
+    copyPieces(pieces, simPieces);
 
-        //reset castling
-        if(castlingPiece !=null){
-            castlingPiece.col = castlingPiece.preCol;
-            castlingPiece.x=castlingPiece.getX(castlingPiece.col);
-            castlingPiece = null;
-        }
+    //reset castling
+    if(castlingPiece !=null){
+        castlingPiece.col = castlingPiece.preCol;
+        castlingPiece.x=castlingPiece.getX(castlingPiece.col);
+        castlingPiece = null;
+    }
 
-        //subtract half square to center the mouse
-        activePiece.x = mouse.x-Board.HALF_SQUARE_SIZE;
-        activePiece.y = mouse.y-Board.HALF_SQUARE_SIZE;
-        activePiece.col = activePiece.getCol(activePiece.x);
-        activePiece.row = activePiece.getRow(activePiece.y);
+    //subtract half square to center the mouse
+    activePiece.x = mouse.x-Board.HALF_SQUARE_SIZE;
+    activePiece.y = mouse.y-Board.HALF_SQUARE_SIZE;
+    activePiece.col = activePiece.getCol(activePiece.x);
+    activePiece.row = activePiece.getRow(activePiece.y);
 
-        if (activePiece.canMove(activePiece.col, activePiece.row)) {
-            canMove = true;
+    if (activePiece.canMove(activePiece.col, activePiece.row)) {
+        canMove = true;
 
-            // Handle castling
-            if (activePiece instanceof King) {
-                int colDiff = Math.abs(activePiece.col - activePiece.preCol);
-                if (colDiff == 2) { // Castling move
-                    if (activePiece.col > activePiece.preCol) { // Kingside castling
-                        for (Piece piece : simPieces) {
-                            if (piece.col == 7 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
-                                castlingPiece = piece;
-                                break;
-                            }
+        // Handle castling
+        if (activePiece instanceof King) {
+            int colDiff = Math.abs(activePiece.col - activePiece.preCol);
+            if (colDiff == 2) { // Castling move
+                if (activePiece.col > activePiece.preCol) { // Kingside castling
+                    for (Piece piece : simPieces) {
+                        if (piece.col == 7 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                            castlingPiece = piece;
+                            // Update rook's column to the new position
+                            castlingPiece.col = activePiece.col - 1;
+                            break;
                         }
-                    } else { // Queenside castling
-                        for (Piece piece : simPieces) {
-                            if (piece.col == 0 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
-                                castlingPiece = piece;
-                                break;
-                            }
+                    }
+                } else { // Queenside castling
+                    for (Piece piece : simPieces) {
+                        if (piece.col == 0 && piece.row == activePiece.row && piece instanceof Rook && !piece.moved) {
+                            castlingPiece = piece;
+                            // Update rook's column to the new position
+                            castlingPiece.col = activePiece.col + 1;
+                            break;
                         }
                     }
                 }
             }
-
-            if (activePiece.hittingPiece != null) {
-                simPieces.remove(activePiece.hittingPiece.getIndex());
-            }
-            isValidSquare = true;
         }
 
-        checkCastling();
-
-        if (activePiece.canMove(activePiece.col, activePiece.row)) {
-            canMove = true;
-            if (!isIllegalKingMove(activePiece) && !opponentCanCapturKing()) {
-                isValidSquare = true;
-            }
+        if (activePiece.hittingPiece != null) {
+            simPieces.remove(activePiece.hittingPiece.getIndex());
         }
-        
+        isValidSquare = true;
     }
+
+
+    // Check for valid square considering king's safety
+    if (canMove) {
+        if (isIllegalKingMove(activePiece) || opponentCanCapturKing()) {
+            isValidSquare = false;
+        }
+    }
+}
 
     private boolean isIllegalKingMove(Piece king) {
         if (king.type == Type.KING) {
@@ -319,6 +309,118 @@ public class GamePanel extends JPanel implements Runnable{
         }
         
         return false;
+    }
+
+    private boolean isCheckMate(){
+        Piece king = getKing(true);
+        if(kingCanMove(king)) {
+            return false;
+        }
+        else{
+            int colDiff = Math.abs(checkingPiece.col-king.col);
+            int rowDiff = Math.abs(checkingPiece.row-king.row);
+
+            if(colDiff==0) {
+                // check piece is attacking vertically
+                if(checkingPiece.row < king.row){
+                    for(int row=checkingPiece.row; row<king.row; row++){
+                        for(Piece piece : simPieces){
+                            if(piece!=king && piece.color !=currentColor && piece.canMove(checkingPiece.col, row)) return false;
+                        }
+                    }
+                }
+                if(checkingPiece.row > king.row){
+                    //below king
+                    for(int row=checkingPiece.row; row>king.row; row--){
+                        for(Piece piece : simPieces){
+                            if(piece!=king && piece.color !=currentColor && piece.canMove(checkingPiece.col, row)) return false;
+                        }
+                    }
+                }
+            }else if(rowDiff==0) {
+                //check piece is attacking horizontallly
+                if(checkingPiece.col < king.col){
+                    for(int col=checkingPiece.col; col<king.col; col++){
+                        for(Piece piece : simPieces){
+                            if(piece!=king && piece.color !=currentColor && piece.canMove(col, checkingPiece.row)) return false;
+                        }
+                    }
+                }
+                if(checkingPiece.col > king.col){
+                    for(int col=checkingPiece.col; col>king.col; col--){
+                        for(Piece piece : simPieces){
+                            if(piece!=king && piece.color !=currentColor && piece.canMove(col, checkingPiece.row)) return false;
+                        }
+                    }
+                }
+
+            }else if(colDiff==rowDiff){
+                //the checking piece is attacking diagonally
+                if(checkingPiece.row < king.row){
+                    if(checkingPiece.col < king.col){
+                        for(int col=checkingPiece.col, row=checkingPiece.row; col<king.col; col++, row++){
+                            for(Piece piece : simPieces){
+                                if(piece != king && piece.color != currentColor && piece.canMove(col, row)) return false;
+                            }
+                        }
+                    }
+                    if(checkingPiece.col> king.col){
+                        for(int col=checkingPiece.col, row=checkingPiece.row; col<king.col; col--, row++){
+                            for(Piece piece : simPieces){
+                                if(piece != king && piece.color != currentColor && piece.canMove(col, row)) return false;
+                            }
+                        }
+                    }
+                }
+
+                if(checkingPiece.row > king.row){
+                    if(checkingPiece.col < king.col){
+                        for(int col=checkingPiece.col, row=checkingPiece.row; col<king.col; col++, row--){
+                            for(Piece piece : simPieces){
+                                if(piece != king && piece.color != currentColor && piece.canMove(col, row)) return false;
+                            }
+                        }
+                    }
+                    if(checkingPiece.col> king.col){
+                        for(int col=checkingPiece.col, row=checkingPiece.row; col>king.col; col--, row--){
+                            for(Piece piece : simPieces){
+                                if(piece != king && piece.color != currentColor && piece.canMove(col, row)) return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+        return true;
+    }
+    private boolean kingCanMove(Piece king){
+        if(isValidMove(king, -1,-1)) return true;
+        if(isValidMove(king, 0,-1)) return true;
+        if(isValidMove(king, 1,-1)) return true;
+        if(isValidMove(king, -1,0)) return true;
+        if(isValidMove(king, 1,0)) return true;
+        if(isValidMove(king, -1,1)) return true;
+        if(isValidMove(king, 0,1)) return true;
+        if(isValidMove(king, 1,1)) return true;
+        return false;
+    }
+    private boolean isValidMove(Piece king, int colPlus, int rowPlus){
+        boolean isValidMove = false;
+
+        //update king position
+        king.col +=colPlus;
+        king.row +=rowPlus;
+
+        if(king.canMove(king.col, king.row)){
+            if(king.hittingPiece !=null) simPieces.remove(king.hittingPiece.getIndex());
+            if(!isIllegalKingMove(king)) isValidMove = true;
+        }
+
+        king.resetPosition();
+        copyPieces(pieces, simPieces);
+
+        return isValidMove;
     }
 
     private void checkCastling() {
@@ -466,22 +568,24 @@ public class GamePanel extends JPanel implements Runnable{
                 g2d.drawString("White's Turn", 640, 550);
                 if (checkingPiece != null && checkingPiece.color == BLACK) {
                     g2d.setColor(Color.red);
-                    g2d.drawString("The king is in check!", 640, 580); // Adjusted y-coordinate for better spacing
+                    g2d.drawString("The king is in check!", 640, 580);
                 }
             } else {
                 g2d.drawString("Black's Turn", 640, 50);
                 if (checkingPiece != null && checkingPiece.color == WHITE) {
                     g2d.setColor(Color.red);
-                    g2d.drawString("The king is in check!", 640, 80); // Adjusted y-coordinate for better spacing
+                    g2d.drawString("The king is in check!", 640, 80);
                 }
             }
         }
 
-        // if (gameOver) {
-        //     g2d.setColor(Color.red);
-        //     g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
-        //     g2d.drawString("Checkmate! Game Over.", WIDTH / 2 - 150, HEIGHT / 2);
-        // }
+         if (gameOver) {
+             String s =currentColor==WHITE? " GameOver White wins": "GameOver Black Wins";
+
+             g2d.setColor(Color.red);
+             g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
+             g2d.drawString(s, WIDTH / 2 - 150, HEIGHT / 2);
+         }
     }
 
 
