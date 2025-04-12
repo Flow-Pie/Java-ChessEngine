@@ -29,6 +29,7 @@ public class Piece {
         preRow=row;
     }
 
+
     public BufferedImage getImage(String imagePath) {
         BufferedImage image = null;
         System.out.println("Attempting to load image: " + imagePath + ".png");
@@ -47,23 +48,21 @@ public class Piece {
         return image;
     }
 
-    public int getX(int col){
-        return  col*Board.SQUARE_SIZE;
+    public int getX(int col) {
+        return col * Board.SQUARE_SIZE;
     }
 
-    public int getY(int row){
-        return  row*Board.SQUARE_SIZE;
+    public int getY(int row) {
+        return row * Board.SQUARE_SIZE;
     }
 
-    public int getCol(int x){
-        //program should detect piece col based on center point on the board
-        return ((x + Board.HALF_SQUARE_SIZE) / Board.SQUARE_SIZE);
+    public int getCol(int screenX) {
+        return (screenX - GamePanel.BOARD_X) / Board.SQUARE_SIZE;
     }
 
-    public int getRow(int y){
-        return ((y+ Board.HALF_SQUARE_SIZE) / Board.SQUARE_SIZE);
+    public int getRow(int screenY) {
+        return (screenY - GamePanel.BOARD_Y) / Board.SQUARE_SIZE;
     }
-
     public int getIndex(){
         for(int index=0; index<GamePanel.simPieces.size(); index++){
             if(GamePanel.simPieces.get(index) == this){
@@ -223,9 +222,18 @@ public class Piece {
         }
         return false;
     }
-    public void drawPiece(Graphics2D graphic2d){
-        graphic2d.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
-    }
+   public void drawPiece(Graphics2D graphic2d, int boardX, int boardY) {
+        // Calculate centered position within square with 5% padding
+        int padding = (int)(Board.SQUARE_SIZE * 0.05);
+        int drawSize = Board.SQUARE_SIZE - 2 * padding;
+
+        graphic2d.drawImage(image,
+            boardX + x + padding,
+            boardY + y + padding,
+            drawSize,
+            drawSize,
+            null);
+}
 
     // Updates piece position and related attributes directly
     public void setPosition(int col, int row) {
@@ -234,6 +242,6 @@ public class Piece {
         this.x = getX(col);
         this.y = getY(row);
     }
-    
+
 
 }

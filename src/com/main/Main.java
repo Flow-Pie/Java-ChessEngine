@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) {
         JFrame  window = new JFrame("Chess Engine");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
+        window.setResizable(true);
 
         GamePanel gamePanel = new GamePanel();
         window.add(gamePanel);

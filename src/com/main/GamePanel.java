@@ -17,6 +17,10 @@ import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable{
     public static final int WIDTH = 900;
     public static final int HEIGHT = 600;
+
+    public static final int BOARD_X = 30;
+    public static final int BOARD_Y = 20;
+
     final int FPS =60;
     Thread gameThread;
     Board board = new Board();
@@ -224,11 +228,19 @@ public class GamePanel extends JPanel implements Runnable{
         castlingPiece = null;
     }
 
-    //subtract half square to center the mouse
-    activePiece.x = mouse.x-Board.HALF_SQUARE_SIZE;
-    activePiece.y = mouse.y-Board.HALF_SQUARE_SIZE;
-    activePiece.col = activePiece.getCol(activePiece.x);
-    activePiece.row = activePiece.getRow(activePiece.y);
+     if(activePiece != null) {
+        // Convert screen coordinates to board coordinates
+        int boardRelX = mouse.x - BOARD_X;
+        int boardRelY = mouse.y - BOARD_Y;
+
+        // Center piece under mouse
+        activePiece.x = boardRelX - Board.HALF_SQUARE_SIZE;
+        activePiece.y = boardRelY - Board.HALF_SQUARE_SIZE;
+
+        // Calculate valid board positions
+        activePiece.col = Math.min(7, Math.max(0, boardRelX / Board.SQUARE_SIZE));
+        activePiece.row = Math.min(7, Math.max(0, boardRelY / Board.SQUARE_SIZE));
+     }
 
     if (activePiece.canMove(activePiece.col, activePiece.row)) {
         canMove = true;
@@ -514,78 +526,178 @@ public class GamePanel extends JPanel implements Runnable{
     @Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
-
         Graphics2D g2d = (Graphics2D) graphics;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Draw the board
-        board.draw2DBoard(g2d);
+        // Dark theme color palette
+        Color darkPrimary = new Color(32, 34, 37);
+        Color darkSecondary = new Color(44, 47, 51);
+        Color accentBlue = new Color(0, 122, 255);
+        Color textPrimary = new Color(255, 255, 255);
+        Color textSecondary = new Color(170, 170, 170);
 
-        // Draw the pieces
+        // Main background
+        g2d.setColor(darkPrimary);
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Side panel
+        g2d.setColor(darkSecondary);
+        g2d.fillRoundRect(620, 20, 260, 560, 15, 15);
+
+        // Chess board with modern styling
+        int boardSize = 560;
+        int boardPadding = 20;
+        int boardX = 30;
+        int boardY = 20;
+
+        // Board background
+        g2d.setColor(new Color(60, 64, 72));
+        g2d.fillRoundRect(boardX - boardPadding, boardY - boardPadding,
+                         boardSize + boardPadding*2, boardSize + boardPadding*2, 20, 20);
+
+        // Draw chess board
+        board.draw2DBoard(g2d, boardX, boardY, new Color(72, 78, 88), new Color(160, 170, 180));
+
+        // Game status panel
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        drawStatusPanel(g2d, 640, 40, 240, 160, darkPrimary, accentBlue, textPrimary, textSecondary);
+
+        // Pieces with modern styling
         for (Piece p : pieces) {
-            p.drawPiece(g2d);
+            p.drawPiece(g2d, boardX, boardY); // Modified to accept board offset
         }
 
-        // Highlight the active piece's valid moves
+        // Active piece highlights
         if (activePiece != null) {
-            if (canMove || opponentCanCapturKing()) {
-                if (isIllegalKingMove(activePiece)) {
-                    g2d.setColor(Color.red);
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                } else {
-                    g2d.setColor(Color.white);
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                    g2d.fillRect(activePiece.col * Board.SQUARE_SIZE, activePiece.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
-                }
-            }
-
-            activePiece.drawPiece(g2d);
+            drawModernSelection(g2d, activePiece, boardX, boardY, accentBlue);
         }
 
+        // Check indicator
         if (checkingPiece != null) {
-            Piece king = getKing(false); 
-            if (king != null) {
-                g2d.setColor(Color.red);
-                g2d.setStroke(new BasicStroke(4)); 
-                g2d.drawRect(king.col * Board.SQUARE_SIZE, king.row * Board.SQUARE_SIZE, Board.SQUARE_SIZE, Board.SQUARE_SIZE);
-            }
+            drawCheckWarning(g2d, boardX, boardY, accentBlue);
         }
 
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setFont(new Font("Book Antiqua", Font.PLAIN, 20));
-        g2d.setColor(Color.white);
-
+        // Promotion UI
         if (promotion) {
-            // Promotion UI
-            g2d.drawString("Promote to: ", 650, 100);
-            for (Piece p : promoPieces) {
-                g2d.drawImage(p.image, p.getX(p.col), p.getY(p.row), Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
-            }
-        } else {
-            if (currentColor == WHITE) {
-                g2d.drawString("White's Turn", 640, 550);
-                if (checkingPiece != null && checkingPiece.color == BLACK) {
-                    g2d.setColor(Color.red);
-                    g2d.drawString("The king is in check!", 640, 580);
-                }
-            } else {
-                g2d.drawString("Black's Turn", 640, 50);
-                if (checkingPiece != null && checkingPiece.color == WHITE) {
-                    g2d.setColor(Color.red);
-                    g2d.drawString("The king is in check!", 640, 80);
-                }
-            }
+            drawModernPromotionUI(g2d, 640, 300, 240, 160, darkPrimary, accentBlue, textPrimary);
         }
 
-         if (gameOver) {
-             String s =currentColor==WHITE? " GameOver White wins": "GameOver Black Wins";
+        // Game over overlay
+        if (gameOver) {
+            drawGameOverOverlay(g2d, darkPrimary, accentBlue, textPrimary);
+        }
+    }
 
-             g2d.setColor(Color.red);
-             g2d.setFont(new Font("Book Antiqua", Font.BOLD, 40));
-             g2d.drawString(s, WIDTH / 2 - 150, HEIGHT / 2);
-         }
+    private void drawStatusPanel(Graphics2D g2d, int x, int y, int width, int height,
+                                Color bgColor, Color accent, Color textMain, Color textSecondary) {
+
+        // Panel background
+        g2d.setColor(bgColor);
+        g2d.fillRoundRect(x, y, width, height, 12, 12);
+
+        // Accent bar
+        g2d.setColor(accent);
+        g2d.fillRoundRect(x, y, 6, height, 12, 12);
+
+        // Content
+        String[] statusLines = {
+            "Game Status: " + (gameOver ? "Completed" : "In Progress"),
+            "Current Turn: " + (currentColor == WHITE ? "White" : "Black"),
+            "Check Status: " + (checkingPiece != null ? "CHECK!" : "Normal"),
+            "Moves Made: " + (pieces.size() - 32) // Example metric
+        };
+
+        g2d.setColor(textMain);
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        g2d.drawString("Game Controls", x + 20, y + 30);
+
+        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        int lineY = y + 60;
+        for (String line : statusLines) {
+            g2d.setColor(textSecondary);
+            g2d.drawString(line.split(":")[0] + ":", x + 20, lineY);
+            g2d.setColor(textMain);
+            g2d.drawString(line.split(":")[1], x + 120, lineY);
+            lineY += 25;
+        }
+    }
+
+    private void drawModernSelection(Graphics2D g2d, Piece piece, int boardX, int boardY, Color accent) {
+        int x = boardX + piece.col * Board.SQUARE_SIZE;
+        int y = boardY + piece.row * Board.SQUARE_SIZE;
+
+        // Selection glow
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
+        g2d.setColor(accent);
+        g2d.fillRoundRect(x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, 15, 15);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+
+        // Valid moves indicator
+        if (canMove) {
+            g2d.setColor(accent);
+            g2d.setStroke(new BasicStroke(2f));
+            g2d.drawRoundRect(x + 2, y + 2, Board.SQUARE_SIZE - 4, Board.SQUARE_SIZE - 4, 10, 10);
+        }
+    }
+
+    private void drawCheckWarning(Graphics2D g2d, int boardX, int boardY, Color accent) {
+        Piece king = getKing(false);
+        if (king != null) {
+            int x = boardX + king.col * Board.SQUARE_SIZE;
+            int y = boardY + king.row * Board.SQUARE_SIZE;
+
+            g2d.setColor(new Color(255, 60, 60, 150));
+            g2d.fillRoundRect(x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, 15, 15);
+
+            g2d.setColor(new Color(255, 255, 255, 200));
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            g2d.drawString("!", x + Board.SQUARE_SIZE/2 - 6, y + Board.SQUARE_SIZE/2 + 8);
+        }
+    }
+
+    private void drawModernPromotionUI(Graphics2D g2d, int x, int y, int width, int height,
+                                      Color bgColor, Color accent, Color textColor) {
+
+        // Background
+        g2d.setColor(bgColor);
+        g2d.fillRoundRect(x, y, width, height, 15, 15);
+
+        // Header
+        g2d.setColor(accent);
+        g2d.fillRoundRect(x, y, width, 40, 15, 15);
+
+        // Text
+        g2d.setColor(textColor);
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        g2d.drawString("Promotion Selection", x + 20, y + 25);
+
+        // Promotion pieces
+        int pieceSize = 60;
+        int startX = x + 30;
+        int startY = y + 60;
+        for (Piece p : promoPieces) {
+            g2d.drawImage(p.image, startX, startY, pieceSize, pieceSize, null);
+            startX += 70;
+        }
+    }
+
+    private void drawGameOverOverlay(Graphics2D g2d, Color bgColor, Color accent, Color textColor) {
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.9f));
+        g2d.setColor(bgColor);
+        g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+        String message = currentColor == WHITE ? "White Victorious!" : "Black Triumphs!";
+
+        g2d.setColor(accent);
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 48));
+        g2d.drawString(message, WIDTH/2 - g2d.getFontMetrics().stringWidth(message)/2, HEIGHT/2);
+
+        g2d.setColor(textColor);
+        g2d.setFont(new Font("Segoe UI", Font.PLAIN, 24));
+        String subMessage = "Game session concluded";
+        g2d.drawString(subMessage, WIDTH/2 - g2d.getFontMetrics().stringWidth(subMessage)/2, HEIGHT/2 + 40);
+
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 
 
